@@ -1,32 +1,62 @@
+# ==========================================
 # Python
+# ==========================================
+
 __pycache__/
 *.py[cod]
 *.pyo
+*.pyd
 
+# ==========================================
 # Virtual Environment
+# ==========================================
+
 .venv/
 venv/
 
+# ==========================================
 # Environment Variables
+# ==========================================
+
 .env
 
-# Logs
-logs/*.log
+# ==========================================
+# VS Code
+# ==========================================
 
-# Temporary files
+.vscode/
+
+# ==========================================
+# Logs
+# ==========================================
+
+logs/
+*.log
+
+# ==========================================
+# Temporary Files
+# ==========================================
+
 *.tmp
 *.temp
 
-# VS Code
-.vscode/
+# ==========================================
+# Operating System
+# ==========================================
 
-# OS
 .DS_Store
 Thumbs.db
 
-# Generated data
+# ==========================================
+# Runtime Files
+# ==========================================
+
 data/homepage.html
 data/pdfs/temp.pdf
-# Runtime state
-state/*
+
+# Don't track runtime PDF stored in state
+state/current.pdf
+
+# Keep monitor state in Git
+!state/monitor_state.json
 !state/.gitkeep
