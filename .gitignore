@@ -27,3 +27,6 @@ Thumbs.db
 # Generated data
 data/homepage.html
 data/pdfs/temp.pdf
+# Runtime state
+state/*
+!state/.gitkeep

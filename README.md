@@ -41,4 +41,4 @@ Current Release: **v1.0**
 
 ---
 
-Developed by **IJ**
+Developed by **IJ** 

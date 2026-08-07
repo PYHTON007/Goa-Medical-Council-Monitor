@@ -1,11 +1,11 @@
 from pathlib import Path
-from datetime import datetime
 import shutil
 
 import requests
 from bs4 import BeautifulSoup
 
 from pdf_utils import sha256
+from state_manager import load_state, save_state
 
 BASE_URL = "https://www.goamedicalcouncil.com"
 
@@ -36,9 +36,11 @@ def find_pdf_link(html):
     soup = BeautifulSoup(html, "lxml")
 
     for link in soup.find_all("a"):
+
         text = link.get_text(strip=True)
 
         if text.lower() == "fmg crmi internship":
+
             href = link.get("href")
 
             if href.startswith("http"):
@@ -59,22 +61,29 @@ def download_pdf(pdf_url):
 
     temp_pdf.write_bytes(response.content)
 
-    print("\nDownloaded newest PDF as temp.pdf")
+    new_hash = sha256(temp_pdf)
 
-    if not current_pdf.exists():
+    state = load_state()
+    old_hash = state.get("last_hash", "")
+
+    print(f"\nOld Hash : {old_hash}")
+    print(f"New Hash : {new_hash}")
+
+    # First ever run
+    if old_hash == "":
 
         shutil.move(temp_pdf, current_pdf)
 
-        print("First PDF saved.")
+        state["last_hash"] = new_hash
+        state["pdf_url"] = pdf_url
+
+        save_state(state)
+
+        print("\nFirst run completed.")
 
         return True, current_pdf
 
-    old_hash = sha256(current_pdf)
-    new_hash = sha256(temp_pdf)
-
-    print(f"\nOld Hash: {old_hash}")
-    print(f"New Hash: {new_hash}")
-
+    # No changes
     if old_hash == new_hash:
 
         temp_pdf.unlink()
@@ -83,13 +92,20 @@ def download_pdf(pdf_url):
 
         return False, current_pdf
 
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    # PDF changed
 
-    archive_copy = ARCHIVE_FOLDER / f"{timestamp}_fmg_crmi_internship.pdf"
+    if current_pdf.exists():
 
-    shutil.copy2(current_pdf, archive_copy)
+        archive_copy = ARCHIVE_FOLDER / current_pdf.name
+
+        shutil.copy2(current_pdf, archive_copy)
 
     shutil.move(temp_pdf, current_pdf)
+
+    state["last_hash"] = new_hash
+    state["pdf_url"] = pdf_url
+
+    save_state(state)
 
     print("\n🚨 PDF HAS CHANGED!")
 
