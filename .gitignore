@@ -52,6 +52,7 @@ Thumbs.db
 # ==========================================
 
 data/homepage.html
+data/pdfs/*.pdf
 data/pdfs/temp.pdf
 
 # Don't track runtime PDF stored in state
