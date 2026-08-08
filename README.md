@@ -21,6 +21,10 @@ The monitor checks the **FMG CRMI Internship** PDF and notifies you via Telegram
 - Manual workflow execution
 - Logging
 - Configurable settings
+- Persistent monitor history
+- Timestamped check history
+- Telegram `/status`, `/latest`, and `/history` commands
+- Remote monitor status through Cloudflare Workers
 
 ## Technologies
 
@@ -96,6 +100,8 @@ A manual workflow trigger is also available through GitHub Actions.
     +-- logs/
     |
     +-- state/
+    |   +-- monitor_state.json
+    |   +-- monitor_history.json
     |
     +-- requirements.txt
     +-- .env
@@ -109,14 +115,11 @@ The `.env` file is excluded from Git using `.gitignore` and should **never be co
 
 ## Version
 
-**Current Release: v1.2**
+**Current Release: v1.3**
 
 ### Version History
 
-- **v1.2** — Added GPT-5.6 Luna AI recaps, token usage tracking, estimated API cost tracking, and Telegram usage reporting.
+- **v1.3** — Added persistent monitor history tracking, timestamped check records, enhanced Telegram status/history reporting, and Cloudflare Worker integration for remote monitor access.
+- **v1.2** — Added GPT-5.6 Luna AI recaps, token usage tracking, estimated API cost tracking, cumulative AI usage tracking, and Telegram usage reporting.
 - **v1.1** — Added scheduled GitHub Actions monitoring and automated state management.
 - **v1.0** — Initial Goa Medical Council FMG/CRMI PDF monitoring system.
-
----
-
-Developed by **IJ**
