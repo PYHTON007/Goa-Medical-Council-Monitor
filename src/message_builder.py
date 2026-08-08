@@ -8,7 +8,7 @@ def current_datetime():
 FOOTER = (
     "\n━━━━━━━━━━━━━━━━━━━━━━\n"
     "<b>🤖 Goa Medical Council Monitor</b>\n"
-    "<i>Version 1.0 • Developed by IJ</i>"
+    "<i>Version 1.2 • Developed by IJ</i>"
 )
 
 

@@ -103,7 +103,7 @@ def build_no_ai_footer(state):
 def main():
 
     log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    log("Goa Medical Council Monitor v1.0")
+    log("Goa Medical Council Monitor v1.2")
     log("Checking Goa Medical Council website...")
 
     try:
