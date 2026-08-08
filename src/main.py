@@ -18,7 +18,12 @@ from telegram_bot import send_update
 
 from logger import log
 
-from state_manager import load_state, save_state
+from state_manager import (
+    load_state,
+    save_state,
+    load_history,
+    save_history,
+)
 
 from config import (
     SEND_STATUS_IF_NO_CHANGE,
@@ -31,10 +36,38 @@ MONITOR_VERSION = "1.2"
 STARTING_CREDIT = 15.00
 INDIA_TZ = timezone(timedelta(hours=5, minutes=30))
 
+MAX_HISTORY_ENTRIES = 50
+
 
 def current_timestamp():
     """Return the current timestamp in India Standard Time."""
+
     return datetime.now(INDIA_TZ).isoformat()
+
+
+def record_history(
+    history,
+    *,
+    result,
+    pdf_url=None,
+):
+    """Record one monitor check in the history."""
+
+    entry = {
+        "timestamp": current_timestamp(),
+        "result": result,
+    }
+
+    if pdf_url:
+        entry["pdf_url"] = pdf_url
+
+    history.append(entry)
+
+    # Keep only the most recent 50 checks.
+    if len(history) > MAX_HISTORY_ENTRIES:
+        history[:] = history[-MAX_HISTORY_ENTRIES:]
+
+    save_history(history)
 
 
 def build_usage_footer(
@@ -136,6 +169,7 @@ def main():
     log("Checking Goa Medical Council website...")
 
     state = load_state()
+    history = load_history()
 
     # Always keep the state version current.
     state["version"] = MONITOR_VERSION
@@ -155,6 +189,11 @@ def main():
 
             update_check_state(
                 state,
+                result="pdf_not_found",
+            )
+
+            record_history(
+                history,
                 result="pdf_not_found",
             )
 
@@ -275,6 +314,12 @@ def main():
 
             save_state(state)
 
+            record_history(
+                history,
+                result="change_detected",
+                pdf_url=pdf_link,
+            )
+
             if SEND_PDF_ON_CHANGE:
 
                 send_update(message, current_pdf)
@@ -293,6 +338,12 @@ def main():
             state["pdf_url"] = pdf_link
 
             save_state(state)
+
+            record_history(
+                history,
+                result="no_change",
+                pdf_url=pdf_link,
+            )
 
             if SEND_STATUS_IF_NO_CHANGE:
 
@@ -314,6 +365,11 @@ def main():
         state["last_result"] = "error"
 
         save_state(state)
+
+        record_history(
+            history,
+            result="error",
+        )
 
         message = website_down_message()
         message += build_no_ai_footer(state)
