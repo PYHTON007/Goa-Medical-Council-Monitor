@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta, timezone
+
 from message_builder import (
     no_change_message,
     change_message,
@@ -25,7 +27,14 @@ from config import (
 )
 
 
+MONITOR_VERSION = "1.2"
 STARTING_CREDIT = 15.00
+INDIA_TZ = timezone(timedelta(hours=5, minutes=30))
+
+
+def current_timestamp():
+    """Return the current timestamp in India Standard Time."""
+    return datetime.now(INDIA_TZ).isoformat()
 
 
 def build_usage_footer(
@@ -100,11 +109,36 @@ def build_no_ai_footer(state):
     )
 
 
+def update_check_state(
+    state,
+    *,
+    pdf_url=None,
+    result=None,
+):
+    """Update general monitor status information."""
+
+    state["version"] = MONITOR_VERSION
+    state["last_checked"] = current_timestamp()
+
+    if pdf_url is not None:
+        state["pdf_url"] = pdf_url
+
+    if result is not None:
+        state["last_result"] = result
+
+    save_state(state)
+
+
 def main():
 
     log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    log("Goa Medical Council Monitor v1.2")
+    log(f"Goa Medical Council Monitor v{MONITOR_VERSION}")
     log("Checking Goa Medical Council website...")
+
+    state = load_state()
+
+    # Always keep the state version current.
+    state["version"] = MONITOR_VERSION
 
     try:
 
@@ -119,7 +153,10 @@ def main():
                 "was not found."
             )
 
-            state = load_state()
+            update_check_state(
+                state,
+                result="pdf_not_found",
+            )
 
             message = website_down_message()
             message += build_no_ai_footer(state)
@@ -130,11 +167,13 @@ def main():
 
         changed, current_pdf = download_pdf(pdf_link)
 
-        state = load_state()
+        state["pdf_url"] = pdf_link
 
         if changed:
 
             log("Change detected.")
+
+            state["last_result"] = "change_detected"
 
             message = change_message(pdf_link)
 
@@ -155,7 +194,7 @@ def main():
                     total_tokens = result["total_tokens"]
                     request_cost = result["cost"]
 
-                    # Update cumulative usage
+                    # Update cumulative usage.
                     state["ai_input_tokens"] = (
                         state.get("ai_input_tokens", 0)
                         + input_tokens
@@ -175,8 +214,6 @@ def main():
                         state.get("ai_total_cost", 0.0)
                         + request_cost
                     )
-
-                    save_state(state)
 
                     log("AI summary generated successfully.")
 
@@ -220,7 +257,6 @@ def main():
                     + summary
                 )
 
-            # Add usage information
             if SEND_SUMMARY:
 
                 message += build_usage_footer(
@@ -230,6 +266,14 @@ def main():
                     request_cost,
                     state,
                 )
+
+            # Record final check information.
+            state["version"] = MONITOR_VERSION
+            state["last_checked"] = current_timestamp()
+            state["last_result"] = "change_detected"
+            state["pdf_url"] = pdf_link
+
+            save_state(state)
 
             if SEND_PDF_ON_CHANGE:
 
@@ -242,6 +286,13 @@ def main():
         else:
 
             log("No changes detected.")
+
+            state["version"] = MONITOR_VERSION
+            state["last_checked"] = current_timestamp()
+            state["last_result"] = "no_change"
+            state["pdf_url"] = pdf_link
+
+            save_state(state)
 
             if SEND_STATUS_IF_NO_CHANGE:
 
@@ -258,7 +309,11 @@ def main():
 
         log(f"ERROR: {e}")
 
-        state = load_state()
+        state["version"] = MONITOR_VERSION
+        state["last_checked"] = current_timestamp()
+        state["last_result"] = "error"
+
+        save_state(state)
 
         message = website_down_message()
         message += build_no_ai_footer(state)
