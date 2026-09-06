@@ -1,9 +1,5 @@
 [
     {
-        "timestamp": "2026-08-25T18:55:01.621619+05:30",
-        "result": "error"
-    },
-    {
         "timestamp": "2026-08-26T00:37:54.287697+05:30",
         "result": "error"
     },
@@ -206,6 +202,11 @@
     },
     {
         "timestamp": "2026-09-06T21:05:17.469384+05:30",
+        "result": "change_detected",
+        "pdf_url": "https://www.goamedicalcouncil.com/pdfUpload/fmg_crmi_internship.pdf"
+    },
+    {
+        "timestamp": "2026-09-07T02:07:31.602032+05:30",
         "result": "change_detected",
         "pdf_url": "https://www.goamedicalcouncil.com/pdfUpload/fmg_crmi_internship.pdf"
     }
