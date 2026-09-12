@@ -1,11 +1,11 @@
 {
     "last_hash": "2e3328b45ce74bbce51403aaa75c9039b260d83bfbf595bd53a96fbe50980e20",
-    "last_checked": "2026-09-12T16:36:06.753498+05:30",
+    "last_checked": "2026-09-12T21:09:03.150247+05:30",
     "pdf_url": "https://www.goamedicalcouncil.com/pdfUpload/fmg_crmi_internship.pdf",
     "version": "1.2",
     "last_result": "change_detected",
-    "ai_input_tokens": 149430,
-    "ai_output_tokens": 24000,
-    "ai_total_tokens": 173430,
-    "ai_total_cost": 0.29343
+    "ai_input_tokens": 152980,
+    "ai_output_tokens": 24500,
+    "ai_total_tokens": 177480,
+    "ai_total_cost": 0.29998
 }
